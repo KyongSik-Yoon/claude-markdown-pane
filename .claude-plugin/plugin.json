@@ -1,0 +1,7 @@
+{
+  "name": "markdown-pane",
+  "version": "0.1.0",
+  "description": "Opens Markdown files rendered in a side pane: from a button on the row that wrote them, when asked in plain words, or by itself for a new report",
+  "author": { "name": "Jorge Romero" },
+  "types": "./types/index.d.ts"
+}

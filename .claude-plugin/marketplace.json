@@ -1,0 +1,6 @@
+{
+  "name": "claude-markdown-pane",
+  "description": "A Claude Code mod that opens Markdown files rendered in a side pane",
+  "owner": { "name": "Jorge Romero" },
+  "plugins": [{ "name": "markdown-pane", "source": "./" }]
+}
