@@ -27,6 +27,13 @@ At the Claude Code prompt in a terminal:
 Answer `y` to add the marketplace, then pick a scope (user scope loads it in
 every session).
 
+## Settings
+
+- **Auto-open new files** (`autoOpen`, on by default): turn it off in
+  `/config` and a written `.md` file no longer opens by itself, nor does
+  Claude open it unasked. The button under its row and asking still open it,
+  and a file already in the pane keeps following its writes.
+
 ## Notes
 
 - The button needs a layout where the terminal reports mouse clicks (the

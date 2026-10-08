@@ -3,5 +3,13 @@
   "version": "0.1.0",
   "description": "Opens Markdown files rendered in a side pane: from a button on the row that wrote them, when asked in plain words, or by itself for a new report",
   "author": { "name": "Jorge Romero" },
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "autoOpen": {
+      "type": "boolean",
+      "title": "Auto-open new files",
+      "description": "Open a Markdown file Claude writes in the side pane by itself. When off, the button under its row and asking still open it",
+      "default": true
+    }
+  }
 }

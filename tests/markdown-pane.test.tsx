@@ -89,6 +89,21 @@ test('a new report opens by itself, the pane follows later writes, and private o
   await ui.unmount()
 })
 
+test('with autoOpen off, a new report waits to be asked for, and a file already shown still follows its writes', { options: { autoOpen: false } }, async ($, on) => {
+  const files: Record<string, string> = { '/work/notes.md': '# Notes' }
+  const opened = world(on, files)
+  await $.tool.call({ tool: 'Write', file_path: '/work/report.md', content: '# First draft' } as never)
+  expect(opened).toEqual([])
+
+  await $.tool.call({ tool: SHOW, path: '/work/notes.md' })
+  expect(opened).toEqual(['notes.md'])
+  const ui = await $.ui.mount({ plugin: 'markdown-pane', surface: 'terminal', component: 'Pane', requestId: 'markdown', props: PANE })
+  await $.tool.call({ tool: 'Write', file_path: '/work/notes.md', content: '# Notes, revised' } as never)
+  expect((await ui.find({ type: 'Markdown' }))?.text).toBe('# Notes, revised')
+  expect(opened).toHaveLength(1)
+  await ui.unmount()
+})
+
 test('under the result of a call that wrote a Markdown file is a framed button that opens it; other results are left alone', async ($, on) => {
   const opened = world(on, { '/work/plan.md': '# Plan' })
   on('ui.render', { component: 'ToolResult' }, ($$, e) => {

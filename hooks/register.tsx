@@ -14,12 +14,15 @@ const LIT = '#9cc8ff'
 const WASH = '#1f3a5f'
 const shown = atom({ plugin: 'markdown-pane', key: 'shown' } as const, null)
 
-const DESCRIPTION = [
-  'Shows a Markdown file rendered in the side pane, for the person to read.',
-  'Use it when they ask to see, show, open or preview a .md file,',
-  'and after writing a report, plan or document they asked for, so they can read it without leaving the conversation.',
-  'The pane follows later edits to the file by itself.',
-].join(' ')
+/** With autoOpen off, Claude is not told to open what it writes either: the person opens it. */
+const describe = (isAutoOpen: boolean) =>
+  [
+    'Shows a Markdown file rendered in the side pane, for the person to read.',
+    isAutoOpen
+      ? 'Use it when they ask to see, show, open or preview a .md file, and after writing a report, plan or document they asked for, so they can read it without leaving the conversation.'
+      : 'Use it when they ask to see, show, open or preview a .md file.',
+    'The pane follows later edits to the file by itself.',
+  ].join(' ')
 
 const isMarkdown = (path: unknown): path is string => typeof path === 'string' && /\.(md|markdown|mdx)$/i.test(path)
 
@@ -79,11 +82,14 @@ const openButton = (els: Pick<Elements['terminal'], 'Box' | 'Button'>, id: strin
   )
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  // On unless the person turned it off in /config: a new report then waits for its button or for being asked.
+  const isAutoOpen = options.autoOpen !== false
+
   on('session.start', async ($, e, next) => {
     await $.tool.register({
       name: 'show',
-      description: DESCRIPTION,
+      description: describe(isAutoOpen),
       inputSchema: {
         type: 'object',
         properties: { path: { type: 'string', description: 'The Markdown file, absolute or relative to the working directory.' } },
@@ -107,7 +113,7 @@ export const register: Register = on => {
     }
   })
 
-  // A written Markdown file: the pane follows it when it is the one shown, and a new one opens by itself.
+  // A written Markdown file: the pane follows it when it is the one shown, and a new one opens by itself (autoOpen).
   on('tool.call', { tool: 'Write' }, async ($, e, next) => {
     const ran = await next(e)
     if (ran.deny !== undefined || ran.isError || !isMarkdown(e.file_path)) return ran
@@ -115,7 +121,7 @@ export const register: Register = on => {
     try {
       const now = await read($, shown)
       if (now?.path === e.file_path) await load($, e.file_path)
-      else if (!isPrivate(e.file_path)) await open($, e.file_path)
+      else if (isAutoOpen && !isPrivate(e.file_path)) await open($, e.file_path)
     } catch {}
 
     return ran
